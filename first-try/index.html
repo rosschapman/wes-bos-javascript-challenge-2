@@ -1,0 +1,169 @@
+<style>
+  html {
+    box-sizing: border-box;
+    background: #ffc600;
+    font-family: 'helvetica neue';
+    font-size: 20px;
+    font-weight: 200;
+  }
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
+  input {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .search-form {
+    max-width: 400px;
+    margin: 50px auto;
+  }
+
+  input.search {
+    margin: 0;
+    text-align: center;
+    outline: 0;
+    border: 0;
+    border: 10px solid #F7F7F7;
+    width: 120%;
+    left: -10%;
+    position: relative;
+    top: 10px;
+    z-index: 2;
+    border-radius: 5px;
+    font-size: 40px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.12), inset 0 0 2px rgba(0, 0, 0, 0.19);
+  }
+
+  .suggestions {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    /*perspective:20px;*/
+  }
+
+  .suggestions li {
+    background: white;
+    list-style: none;
+    border-bottom: 1px solid #D8D8D8;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.14);
+    margin: 0;
+    padding: 20px;
+    transition: background 0.2s;
+  }
+
+  .suggestions li:nth-child(even) {
+    transform: perspective(100px) rotateX(3deg) translateY(2px) scale(1.001);
+    background: linear-gradient(to bottom, #ffffff 0%, #EFEFEF 100%);
+  }
+
+  .suggestions li:nth-child(odd) {
+    transform: perspective(100px) rotateX(-3deg) translateY(3px);
+    background: linear-gradient(to top, #ffffff 0%, #EFEFEF 100%);
+  }
+
+  span.population {
+    font-size: 15px;
+  }
+
+  .details {
+    text-align: center;
+    font-size: 15px;
+  }
+
+  .hl {
+    background: #ffc600;
+  }
+
+  .love {
+    text-align: center;
+    line-height: 2;
+  }
+
+  a {
+    color: black;
+    background: rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+  }
+
+  .pop {
+    float: right;
+  }
+</style>
+
+<form class="search-form">
+  <input type="text" class="search" placeholder="City or State">
+  <ul class="suggestions">
+    <li>Filter for a city</li>
+    <li>or a state</li>
+  </ul>
+</form>
+
+<p class="love">Using JavaScript, replicate the <a href="http://wes.io/fAks" target="_blank">functionality found here</a>. <br>I'll post my answer once everyone has had a shot. <br>Tweet your answer <a href="http://twitter.com/wesbos">@wesbos</a></p>
+
+<script
+  src="https://code.jquery.com/jquery-3.1.0.min.js"
+  integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="
+  crossorigin="anonymous">
+</script>
+
+<script>
+  function fetchResults(e) {
+    var results;
+    var url = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+    $.getJSON(url, function(json, textStatus, jqXHR) {
+      handleResults(json);
+    });
+  }
+
+  function handleResults(results) {
+    appendResults(filterResults(results));
+  }
+
+  function filterResults(results) {
+    var query = $('input').prop('value');
+
+    return results.filter(function(result, i) {
+      var re = new RegExp(query, 'i');
+      return result.city.match(re) || result.state.match(re);
+    });
+  }
+
+  function appendResults(results) {
+    var query = $('input').prop('value');
+    var target = $('.suggestions');
+    var newList = '';
+
+    results.forEach(function(result, i) {
+      var html = resultHTML(result, query);
+      newList += html;
+    });
+
+    target.html(newList);
+  }
+
+  function resultHTML(result, query) {
+    var city = highlighter(result.city, query);
+    var state = highlighter(result.state, query);
+    var population = (~~result.population).toLocaleString();
+
+    return '<li>' + city + ', ' + state + ' <span class="pop">' + population + '</span></li>';
+  }
+
+  function highlighter(haystack, needle) {
+    var re = new RegExp(needle, 'i');
+    return needle ? haystack.replace(re, '<span class="hl">$&</span>') : haystack;
+  }
+
+  function setupInputBindings() {
+    $('input').on('input keypress', fetchResults);
+  }
+
+  $(document).ready(function() {
+    setupInputBindings();
+  });
+</script>
