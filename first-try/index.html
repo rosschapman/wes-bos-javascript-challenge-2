@@ -147,16 +147,15 @@
   }
 
   function resultHTML(result, query) {
-    var city = highlighter(result.city, query);
-    var state = highlighter(result.state, query);
+    var cityStateStr = highlighter(result.city + ', ' + result.state, query);
     var population = (~~result.population).toLocaleString();
 
-    return '<li>' + city + ', ' + state + ' <span class="pop">' + population + '</span></li>';
+    return '<li>' + cityStateStr + ' <span class="pop">' + population + '</span></li>';
   }
 
   function highlighter(haystack, needle) {
-    var re = new RegExp(needle, 'i');
-    return needle ? haystack.replace(re, '<span class="hl">$&</span>') : haystack;
+    var re = new RegExp(needle, 'ig');
+    return haystack.replace(re, '<span class="hl">$&</span>');
   }
 
   function setupInputBindings() {
