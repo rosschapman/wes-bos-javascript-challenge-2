@@ -159,7 +159,7 @@
   }
 
   function setupInputBindings() {
-    $('input').on('input keypress', fetchResults);
+    $('input').on('input keyup', fetchResults);
   }
 
   $(document).ready(function() {
